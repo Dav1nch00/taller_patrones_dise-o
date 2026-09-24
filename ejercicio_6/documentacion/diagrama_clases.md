@@ -1,6 +1,6 @@
 # Ejercicio 6: Sistema de Reservas para Aerolínea - Diagrama de Clases
 
-## Diagrama (Mermaid)
+## Diagrama 
 
 ```mermaid
 classDiagram
