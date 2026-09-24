@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 
 
+class InvalidStateTransitionError(Exception):
+    pass
+
+
 class ReservationState(ABC):
     @abstractmethod
     def modify(self, reservation):
