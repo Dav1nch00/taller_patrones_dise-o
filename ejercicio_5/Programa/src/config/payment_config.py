@@ -19,9 +19,9 @@ class PaymentConfig:
         }
         self._security_thresholds = {
             "US": 10000.0,
-            "CO": 8000000.0,
+            "CO": 1500.0,
             "EU": 9000.0,
-            "MX": 150000.0,
+            "MX": 4000.0,
         }
         self._ready = True
 
