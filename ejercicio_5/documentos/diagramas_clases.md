@@ -32,7 +32,7 @@ classDiagram
     }
 
     %% ===================== Strategy (comisiones + conversión) =====================
-    class PaymentStrategy {
+    class CommissionStrategy {
         <<interface>>
         +calculate(base_amount: float) float
     }
@@ -98,28 +98,34 @@ classDiagram
     class PaymentProcessor {
         <<abstract>>
         +process_payment(method: PaymentMethod, amount: float, country: str, client_type: str)
-        +configure_commission()*
+        +notifier PaymentNotifier
         +get_currency()* str
-        +conversion_strategy()* CurrencyConversionStrategy
-        +commission_strategy(client_type) PaymentStrategy*
+        +conversion()* CurrencyConversionStrategy
+        +commission_strategy(client_type) CommissionStrategy*
         +validation_chain()* ValidationHandler
         +gateway()* PaymentGateway
     }
     class ColombiaProcessor {
         +get_currency() str
-        +commission_strategy(client_type) PaymentStrategy
+        +commission_strategy(client_type) CommissionStrategy
+        +validation_chain() ValidationHandler
+        +gateway() PaymentGateway
+    }
+    class MexicoProcessor {
+        +get_currency() str
+        +commission_strategy(client_type) CommissionStrategy
         +validation_chain() ValidationHandler
         +gateway() PaymentGateway
     }
     class USProcessor {
         +get_currency() str
-        +commission_strategy(client_type) PaymentStrategy
+        +commission_strategy(client_type) CommissionStrategy
         +validation_chain() ValidationHandler
         +gateway() PaymentGateway
     }
     class EuropeProcessor {
         +get_currency() str
-        +commission_strategy(client_type) PaymentStrategy
+        +commission_strategy(client_type) CommissionStrategy
         +validation_chain() ValidationHandler
         +gateway() PaymentGateway
     }
@@ -141,7 +147,7 @@ classDiagram
 
     %% ===================== Facade (punto de entrada único) =====================
     class PaymentFacade {
-        +pay(method_type: str, amount: float, country: str)
+        +pay(method_type: str, amount: float, country: str, client_type: str = "standard")
     }
 
     %% ---------- Relaciones ----------
@@ -154,9 +160,9 @@ classDiagram
     DigitalWallet ..|> PaymentMethod
 
     %% Strategy: comisiones y conversión
-    StandardCommission ..|> PaymentStrategy
-    PremiumCommission ..|> PaymentStrategy
-    InternationalCommission ..|> PaymentStrategy
+    StandardCommission ..|> CommissionStrategy
+    PremiumCommission ..|> CommissionStrategy
+    InternationalCommission ..|> CommissionStrategy
     FixedRateConversion ..|> CurrencyConversionStrategy
 
     %% Chain of Responsibility: antifraude
@@ -175,6 +181,7 @@ classDiagram
 
     %% Template Method + Factory: procesadores por región
     ColombiaProcessor --|> PaymentProcessor
+    MexicoProcessor --|> PaymentProcessor
     USProcessor --|> PaymentProcessor
     EuropeProcessor --|> PaymentProcessor
     PaymentProcessorFactory --> PaymentProcessor : crea
@@ -189,7 +196,7 @@ classDiagram
     PaymentFacade --> PaymentConfig : usa
     PaymentFacade --> PaymentFactory : usa
     PaymentFacade --> PaymentProcessorFactory : usa
-    PaymentFacade --> PaymentStrategy : usa
+    PaymentFacade --> CommissionStrategy : usa
     PaymentFacade --> CurrencyConversionStrategy : usa
     PaymentFacade --> ValidationHandler : usa
     PaymentFacade --> PaymentGateway : usa
